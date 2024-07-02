@@ -232,7 +232,9 @@ img {
 
 /* Show menu */
 
-
+.show-menu{
+  right: 0;
+}
 /* Add blur header */
 
 
