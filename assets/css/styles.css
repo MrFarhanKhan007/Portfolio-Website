@@ -334,7 +334,20 @@ img {
 }
 
 /*=============== BUTTON ===============*/
+.button {
+  display: inline-flex;
+  justify-content: center;
+  background-color: var(--first-color);
+  color: var(--title-color);
+  font-weight: var(--font-semi-bold);
+  padding: 1.25rem 2rem;
+  transition: background-color .4s;
+}
 
+.button:hover {
+  background-color: var(--first-color-alt);
+
+}
 
 /*=============== WORKS ===============*/
 .work {
@@ -363,24 +376,65 @@ img {
   margin-bottom: 1.5rem;
 }
 
-.work__link i{
+.work__link i {
   position: absolute;
   top: 1.8rem;
   right: 1.5rem;
   font-size: 1.5rem;
-  color:var(--first-color-light);
+  color: var(--first-color-light);
   transition: transform .4s;
 }
 
-.work__link:hover{
+.work__link:hover {
   transform: translateX(.5rem);
 }
 
 /*=============== INFO ===============*/
+.info__container {
+  row-gap: 3rem;
+}
 
+.info__title {
+  position: relative;
+  font-size: var(--small-font-size);
+  color: var(--text-color);
+  margin-bottom: 2rem;
+}
+
+.info__title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -.5rem;
+  width: 20px;
+  height: 2px;
+  background-color: var(--text-color);
+}
 
 /* ABOUT */
+.about {
+  row-gap: 3rem;
+}
 
+.about__description {
+  margin-bottom: 2rem;
+}
+
+.about__description b {
+  color: var(--first-color-light);
+}
+
+.about__img {
+  width: 250px;
+  justify-self: center;
+  mask-image: linear-gradient(to bottom,
+      hsla(var(--hue), 40%, 16%) 60%,
+      transparent 100%);
+}
+
+.about__button{
+  width: 100%;
+}
 
 /* EXPERIENCE */
 
