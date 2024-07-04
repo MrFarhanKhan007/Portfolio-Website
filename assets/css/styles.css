@@ -516,6 +516,10 @@ img {
   gap: 1rem;
 }
 
+.contact__form{
+  position: relative;
+}
+
 .contact__input {
   padding: 1.25rem;
   background-color: var(--container-color);

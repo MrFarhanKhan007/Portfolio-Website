@@ -40,13 +40,37 @@ const blurHeader = () => {
 window.addEventListener('scroll', blurHeader)
 
 
-    /*=============== EMAIL JS ===============*/
+/*=============== EMAIL JS ===============*/
+const contactForm = document.getElementById('contact-form'),
+    contactMessage = document.getElementById('contact-message')
+
+const sendEmail = (e) => {
+    e.preventDefault()
+    //serviceID -templateID -#form -publicKey
+    emailjs.sendForm('service_lsppjnq', 'template_1dj69vk', '#contact-form', 'irh4cpRLG-92xnrW0')
+        .then(() => {
+            //Show sent message
+            contactMessage.textContent = 'Message sent successfully ✅'
+
+            //Remove message after 5 seconds
+            setTimeout(() => {
+                contactMessage.textContent = ''
+            }, 5000)
+
+            // Clear input field
+            contactForm.reset()
+        },()=>{
+            //show error message
+            contactMessage.textContent='Message not sent (service error) ❌'
+        })
+}
+
+contactForm.addEventListener('submit', sendEmail)
+
+/*=============== SHOW SCROLL UP ===============*/
 
 
-    /*=============== SHOW SCROLL UP ===============*/
+/*=============== SCROLL SECTIONS ACTIVE LINK ===============*/
 
 
-    /*=============== SCROLL SECTIONS ACTIVE LINK ===============*/
-
-
-    /*=============== SCROLL REVEAL ANIMATION ===============*/
+/*=============== SCROLL REVEAL ANIMATION ===============*/
