@@ -41,6 +41,11 @@ window.addEventListener('scroll', blurHeader)
 
 
 /*=============== EMAIL JS ===============*/
+
+
+require('dotenv').config();
+const siteKey = process.env.SITE_KEY
+
 const contactForm = document.getElementById('contact-form');
 const contactMessage = document.getElementById('contact-message');
 const contactButton = document.getElementById('contact-button');
@@ -48,48 +53,57 @@ const contactButton = document.getElementById('contact-button');
 let isRequestAllowed = true;
 let timeout;
 
-const sendEmail = (e) => {
+const sendEmail = async (e) => { // Add 'async' here
     e.preventDefault();
 
-    if (!isRequestAllowed) {
-        const remainingTime = Math.ceil((timeout - Date.now()) / 1000);
-        contactMessage.textContent = `Please wait another ${remainingTime} seconds.`;
-        return;
-    }
+    try {
+        // Generate reCAPTCHA token
+        const token = await grecaptcha.execute(siteKey, { action: 'submit' });
+        document.getElementById('recaptcha-token').value = token;
 
-    isRequestAllowed = false;
-    contactButton.disabled = true;
-    timeout = Date.now() + 60000; // Set timeout for 60 seconds
+        // Send reCAPTCHA token to server for verification
+        const formData = new FormData(contactForm);
+        const recaptchaToken = formData.get('recaptcha_token');
 
-    emailjs.sendForm('service_2b0hrch', 'template_1dj69vk', '#contact-form', 'irh4cpRLG-92xnrW0')
-        .then(() => {
-            // Show sent message
-            contactMessage.textContent = 'Message sent successfully ✅';
-
-            // Remove message after 5 seconds
-            setTimeout(() => {
-                contactMessage.textContent = '';
-            }, 5000);
-
-            // Clear input field
-            contactForm.reset();
-        }, () => {
-            // Show error message
-            contactMessage.textContent = 'Message not sent (service error) ❌';
+        const verifyCaptchaResponse = await fetch('/verify-recaptcha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: recaptchaToken })
         });
 
-    // Start the countdown for 60 seconds
-    const countdown = setInterval(() => {
-        const remainingTime = Math.ceil((timeout - Date.now()) / 1000);
-        if (remainingTime <= 0) {
-            clearInterval(countdown);
-            contactMessage.textContent = '';
-            isRequestAllowed = true;
-            contactButton.disabled = false;
-        } else {
-            contactMessage.textContent = `Please wait another ${remainingTime} seconds.`;
+        const captchaVerificationResult = await verifyCaptchaResponse.json();
+
+        if (!captchaVerificationResult.success || captchaVerificationResult.score < 0.5) {
+            contactMessage.textContent = 'Verification failed, suspicious activity detected ❌';
+            return;
         }
-    }, 1000);
+
+        // If reCAPTCHA is valid, send the email
+        await emailjs.sendForm('service_2b0hrch', 'template_1dj69vk', '#contact-form', 'irh4cpRLG-92xnrW0');
+        contactMessage.textContent = 'Message sent successfully ✅';
+        setTimeout(() => contactMessage.textContent = '', 5000);
+        contactForm.reset();
+
+        // Start the cooldown timer
+        isRequestAllowed = false;
+        contactButton.disabled = true;
+        timeout = Date.now() + 60000; // 60 seconds
+
+        const countdown = setInterval(() => {
+            const remainingTime = Math.ceil((timeout - Date.now()) / 1000);
+            if (remainingTime <= 0) {
+                clearInterval(countdown);
+                contactMessage.textContent = '';
+                isRequestAllowed = true;
+                contactButton.disabled = false;
+            } else {
+                contactMessage.textContent = `Please wait another ${remainingTime} seconds.`;
+            }
+        }, 1000);
+    } catch (error) {
+        contactMessage.textContent = 'An error occurred ❌';
+        console.error(error);
+    }
 };
 
 contactForm.addEventListener('submit', sendEmail);
@@ -136,8 +150,8 @@ const sr = ScrollReveal({
 
 sr.reveal(`.home__data, .experience, .skills, .contact__container`)
 
-sr.reveal(`.home__img`, {delay: 600})
-sr.reveal(`.home__scroll`, {delay: 800})
-sr.reveal(`.work__card, .services__card`, {interval: 100})
-sr.reveal(`.about__content`, {origin: 'right'})
-sr.reveal(`.about__img`, {origin: 'left'})
+sr.reveal(`.home__img`, { delay: 600 })
+sr.reveal(`.home__scroll`, { delay: 800 })
+sr.reveal(`.work__card, .services__card`, { interval: 100 })
+sr.reveal(`.about__content`, { origin: 'right' })
+sr.reveal(`.about__img`, { origin: 'left' })
