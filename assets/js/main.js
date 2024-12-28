@@ -41,31 +41,58 @@ window.addEventListener('scroll', blurHeader)
 
 
 /*=============== EMAIL JS ===============*/
-const contactForm = document.getElementById('contact-form'),
-    contactMessage = document.getElementById('contact-message')
+const contactForm = document.getElementById('contact-form');
+const contactMessage = document.getElementById('contact-message');
+const contactButton = document.getElementById('contact-button');
+
+let isRequestAllowed = true;
+let timeout;
 
 const sendEmail = (e) => {
-    e.preventDefault()
-    //serviceID -templateID -#form -publicKey
+    e.preventDefault();
+
+    if (!isRequestAllowed) {
+        const remainingTime = Math.ceil((timeout - Date.now()) / 1000);
+        contactMessage.textContent = `Please wait another ${remainingTime} seconds.`;
+        return;
+    }
+
+    isRequestAllowed = false;
+    contactButton.disabled = true;
+    timeout = Date.now() + 60000; // Set timeout for 60 seconds
+
     emailjs.sendForm('service_2b0hrch', 'template_1dj69vk', '#contact-form', 'irh4cpRLG-92xnrW0')
         .then(() => {
-            //Show sent message
-            contactMessage.textContent = 'Message sent successfully ✅'
+            // Show sent message
+            contactMessage.textContent = 'Message sent successfully ✅';
 
-            //Remove message after 5 seconds
+            // Remove message after 5 seconds
             setTimeout(() => {
-                contactMessage.textContent = ''
-            }, 5000)
+                contactMessage.textContent = '';
+            }, 5000);
 
             // Clear input field
-            contactForm.reset()
+            contactForm.reset();
         }, () => {
-            //show error message
-            contactMessage.textContent = 'Message not sent (service error) ❌'
-        })
-}
+            // Show error message
+            contactMessage.textContent = 'Message not sent (service error) ❌';
+        });
 
-contactForm.addEventListener('submit', sendEmail)
+    // Start the countdown for 60 seconds
+    const countdown = setInterval(() => {
+        const remainingTime = Math.ceil((timeout - Date.now()) / 1000);
+        if (remainingTime <= 0) {
+            clearInterval(countdown);
+            contactMessage.textContent = '';
+            isRequestAllowed = true;
+            contactButton.disabled = false;
+        } else {
+            contactMessage.textContent = `Please wait another ${remainingTime} seconds.`;
+        }
+    }, 1000);
+};
+
+contactForm.addEventListener('submit', sendEmail);
 
 /*=============== SHOW SCROLL UP ===============*/
 const scrollUp = () => {
